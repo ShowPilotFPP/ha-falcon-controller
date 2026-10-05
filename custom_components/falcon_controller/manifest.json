@@ -1,0 +1,18 @@
+{
+  "domain": "falcon_controller",
+  "name": "Falcon Controller",
+  "codeowners": [
+    "@ShowPilotFPP"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
+  "documentation": "https://github.com/ShowPilotFPP/ha-falcon-controller",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/ShowPilotFPP/ha-falcon-controller/issues",
+  "requirements": [],
+  "version": "0.1.2"
+}

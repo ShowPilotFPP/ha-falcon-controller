@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="m" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D5DDE3"/><stop offset=".55" stop-color="#8E9BA6"/><stop offset="1" stop-color="#D5DDE3"/></linearGradient>
+    <radialGradient id="r" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="#FF8A80"/><stop offset="1" stop-color="#E53935"/></radialGradient>
+    <radialGradient id="g" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="#B9F6CA"/><stop offset="1" stop-color="#2E9E48"/></radialGradient>
+    <radialGradient id="b" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="#90CAF9"/><stop offset="1" stop-color="#1E7BE0"/></radialGradient>
+  </defs>
+  <g transform="translate(256 256) rotate(-35) translate(-256 -256)" stroke-linejoin="round" stroke-linecap="round">
+    <!-- lead in -->
+    <line x1="18" y1="256" x2="80" y2="256" stroke="#E8EDF2" stroke-width="14"/>
+    <!-- lead out becomes a pixel string -->
+    <line x1="420" y1="256" x2="500" y2="256" stroke="#E8EDF2" stroke-width="10"/>
+    <!-- glass tube -->
+    <rect x="120" y="204" width="272" height="104" fill="#2B3A46" stroke="#E8EDF2" stroke-width="12"/>
+    <rect x="132" y="216" width="248" height="14" rx="6" fill="#4A5D6C" stroke="none" opacity=".9"/>
+    <!-- filament -->
+    <line x1="120" y1="256" x2="392" y2="256" stroke="#FFB74D" stroke-width="8"/>
+    <!-- pixels on the filament -->
+    <circle cx="196" cy="256" r="17" fill="url(#r)" stroke="#E8EDF2" stroke-width="5"/>
+    <circle cx="256" cy="256" r="17" fill="url(#g)" stroke="#E8EDF2" stroke-width="5"/>
+    <circle cx="316" cy="256" r="17" fill="url(#b)" stroke="#E8EDF2" stroke-width="5"/>
+    <!-- end caps -->
+    <rect x="72"  y="188" width="62" height="136" rx="10" fill="url(#m)" stroke="#E8EDF2" stroke-width="12"/>
+    <rect x="378" y="188" width="62" height="136" rx="10" fill="url(#m)" stroke="#E8EDF2" stroke-width="12"/>
+    <line x1="92" y1="196" x2="92" y2="316" stroke="#E8EDF2" stroke-width="5" opacity=".3"/>
+    <line x1="114" y1="196" x2="114" y2="316" stroke="#E8EDF2" stroke-width="5" opacity=".3"/>
+    <line x1="398" y1="196" x2="398" y2="316" stroke="#E8EDF2" stroke-width="5" opacity=".3"/>
+    <line x1="420" y1="196" x2="420" y2="316" stroke="#E8EDF2" stroke-width="5" opacity=".3"/>
+  </g>
+  <!-- pixel string trailing off the lead -->
+  <g stroke="#E8EDF2" stroke-width="6">
+    <circle cx="446" cy="123" r="0" />
+  </g>
+</svg>

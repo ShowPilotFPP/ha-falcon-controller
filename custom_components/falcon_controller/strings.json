@@ -1,0 +1,78 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Falcon controller",
+        "description": "Enter the address of your Falcon V5 controller.",
+        "data": { "host": "Host" },
+        "data_description": { "host": "IP address or hostname, e.g. 192.168.1.100" }
+      },
+      "reconfigure": {
+        "title": "Change controller address",
+        "data": { "host": "Host" },
+        "data_description": { "host": "IP address or hostname, e.g. 192.168.1.100" }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the controller. Check the address and that the controller is powered on.",
+      "invalid_response": "The device answered, but not like a Falcon V5 controller.",
+      "unknown": "Unexpected error. Check the Home Assistant logs."
+    },
+    "abort": {
+      "already_configured": "This controller is already set up.",
+      "reconfigure_successful": "Controller address updated.",
+      "wrong_device": "That address belongs to a different controller."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Falcon controller options",
+        "data": { "scan_interval": "Polling interval (seconds)" },
+        "data_description": {
+          "scan_interval": "How often to read port and fuse status. The controller handles one request at a time, so avoid very short intervals during shows."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "online": { "name": "Online" },
+      "fuse_blown": {
+        "name": "Fuse blown",
+        "state_attributes": {
+          "blown_ports": { "name": "Blown ports" },
+          "blown_port_list": { "name": "Blown port list" }
+        }
+      },
+      "receiver": { "name": "Connected" }
+    },
+    "button": {
+      "reset_fuses": { "name": "Reset all fuses" },
+      "all_fuses_on": { "name": "All fuses on" },
+      "all_fuses_off": { "name": "All fuses off" }
+    },
+    "sensor": {
+      "port_fuse": {
+        "name": "Port {port} fuse",
+        "state": {
+          "good": "Good",
+          "off": "Off",
+          "blown": "Blown",
+          "unknown": "Unknown",
+          "v4": "V4"
+        }
+      },
+      "port_current": { "name": "Port {port} current" },
+      "last_seen": { "name": "Last seen" },
+      "temperature_1": { "name": "Temperature 1" },
+      "temperature_2": { "name": "Temperature 2" },
+      "processor_temperature": { "name": "Processor temperature" },
+      "voltage_1": { "name": "Voltage 1" },
+      "voltage_2": { "name": "Voltage 2" }
+    },
+    "switch": {
+      "port": { "name": "Port {port}" }
+    }
+  }
+}
