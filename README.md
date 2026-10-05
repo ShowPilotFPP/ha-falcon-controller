@@ -1,3 +1,5 @@
+![Falcon Controller icon](https://raw.githubusercontent.com/ShowPilotFPP/ha-falcon-controller/main/custom_components/falcon_controller/brand/icon.png)
+
 # Falcon Controller for Home Assistant
 
 Monitor and control the e-fuses on Falcon V5 pixel controllers (F16V5 and family) from Home Assistant, including ports on smart receivers. Comes with a dashboard view that builds itself from whatever is connected.
