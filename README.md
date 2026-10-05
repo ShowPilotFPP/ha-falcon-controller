@@ -29,7 +29,13 @@ Smart receivers on any differential chain are supported. V4-mode receivers have 
 
 ## Installation
 
-### HACS (custom repository)
+### HACS
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ShowPilotFPP&repository=ha-falcon-controller&category=integration)
+
+Click the button above, then **Download** and restart Home Assistant.
+
+Or add it by hand:
 
 1. In HACS, open the ⋮ menu → **Custom repositories**.
 2. Add `https://github.com/ShowPilotFPP/ha-falcon-controller` with type **Integration**.
@@ -41,7 +47,9 @@ Copy `custom_components/falcon_controller` into your Home Assistant `config/cust
 
 ## Setup
 
-**Settings → Devices & services → Add integration → Falcon Controller**, then enter the controller's IP address or hostname.
+[![Open your Home Assistant instance and start setting up Falcon Controller.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=falcon_controller)
+
+Or go to **Settings → Devices & services → Add integration → Falcon Controller**, then enter the controller's IP address or hostname.
 
 The polling interval (default 15 seconds) can be changed from the integration's **Configure** button. If the controller's IP changes, use **Reconfigure**.
 
