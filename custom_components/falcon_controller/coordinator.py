@@ -12,6 +12,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import (
     CONNECTION_NETWORK_MAC,
     DeviceInfo,
@@ -124,12 +125,31 @@ class FalconCoordinator(DataUpdateCoordinator[FalconData]):
             info["connections"] = {(CONNECTION_NETWORK_MAC, format_mac(str(status["C"])))}
         return info
 
+    def async_register_controller(self) -> dr.DeviceEntry:
+        """Create or update the controller device in the registry."""
+        return dr.async_get(self.hass).async_get_or_create(
+            config_entry_id=self.config_entry.entry_id,
+            **self.controller_device_info(),
+        )
+
     def receiver_device_info(self, group: int, receiver: int) -> DeviceInfo:
-        label = receiver_label(group, receiver)
-        return DeviceInfo(
-            identifiers={(DOMAIN, f"{self.device_uid}_rx_{group}_{receiver}")},
-            name=f"{self.controller_name} Receiver {label}",
+        """Register a receiver device, linked to the controller, and return its info.
+
+        Linking is done by device id rather than DeviceInfo's via_device,
+        which newer Home Assistant versions deprecate.
+        """
+        identifiers = {(DOMAIN, f"{self.device_uid}_rx_{group}_{receiver}")}
+        registry = dr.async_get(self.hass)
+        controller = registry.async_get_device(identifiers={(DOMAIN, self.device_uid)})
+        if controller is None:
+            controller = self.async_register_controller()
+        device = registry.async_get_or_create(
+            config_entry_id=self.config_entry.entry_id,
+            identifiers=identifiers,
+            name=f"{self.controller_name} Receiver {receiver_label(group, receiver)}",
             manufacturer="Pixel Controller",
             model="Smart receiver",
-            via_device=(DOMAIN, self.device_uid),
         )
+        if device.via_device_id != controller.id:
+            registry.async_update_device(device.id, via_device_id=controller.id)
+        return DeviceInfo(identifiers=identifiers)

@@ -186,3 +186,20 @@ async def test_v4_receivers_have_no_fuse_controls(hass: HomeAssistant, falcon: F
     assert hass.states.get("sensor.f48v5_receiver_1a_port_1a_fuse").state == "v4"
     assert hass.states.get("switch.f48v5_receiver_1a_port_1a").state == STATE_UNAVAILABLE
     assert hass.states.get("button.f48v5_reset_all_fuses").state == STATE_UNAVAILABLE
+
+
+async def test_dropped_connection_is_retried(hass: HomeAssistant, falcon: FakeFalcon) -> None:
+    await _setup(hass)
+    falcon.drop_next = 1  # one dropped connection: retried, poll still succeeds
+    await _poll(hass)
+    assert hass.states.get("binary_sensor.f16v5_online").state == STATE_ON
+    falcon.drop_next = 2  # dropped twice in a row: reported as offline
+    await _poll(hass)
+    assert hass.states.get("binary_sensor.f16v5_online").state == STATE_OFF
+
+
+async def test_receivers_linked_without_warning(
+    hass: HomeAssistant, falcon: FakeFalcon, caplog
+) -> None:
+    await _setup(hass)
+    assert "via_device" not in caplog.text

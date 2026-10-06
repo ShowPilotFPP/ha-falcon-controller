@@ -43,6 +43,7 @@ class FakeFalcon:
         self.online = True
         self.page_size = 100  # entries per CQ page
         self.commands: list[tuple[str, dict]] = []
+        self.drop_next = 0  # simulate the controller closing the connection
 
     def entry(self, port: int, receiver: int) -> dict:
         return next(e for e in self.ports if e["p"] == port and e["r"] == receiver)
@@ -52,6 +53,11 @@ class FakeFalcon:
             from aiohttp import ClientConnectionError
 
             raise ClientConnectionError("controller offline")
+        if self.drop_next:
+            self.drop_next -= 1
+            from aiohttp import ServerDisconnectedError
+
+            raise ServerDisconnectedError()
         body = data if isinstance(data, dict) else json.loads(data)
         kind, cmd, batch = body["T"], body["M"], body["B"]
         resp = {"R": 200, "T": kind, "M": cmd, "B": batch, "F": 1, "RB": 0, "P": {}}
@@ -96,7 +102,7 @@ def no_command_delay():
 @pytest.fixture(autouse=True)
 def no_frontend(hass):
     """Skip serving the strategy JS (needs the full frontend package)."""
-    hass.config.components.update({"frontend", "http"})
+    hass.config.components.update({"frontend", "http", "lovelace"})
     with patch(
         "custom_components.falcon_controller.async_setup", return_value=True
     ):

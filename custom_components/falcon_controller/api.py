@@ -46,16 +46,31 @@ class FalconClient:
     ) -> dict[str, Any]:
         body = {"T": kind, "M": method, "B": batch, "E": 0, "I": 0, "P": params or {}}
         async with self._lock:
-            try:
-                async with self._session.post(
-                    self._url, json=body, timeout=self._timeout
-                ) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json(content_type=None)
-            except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
-                raise FalconConnectionError(
-                    f"{method} request to {self.host} failed: {err}"
-                ) from err
+            for attempt in range(2):
+                try:
+                    # The controller's web server drops idle keep-alive
+                    # connections, so ask for a fresh one every time.
+                    async with self._session.post(
+                        self._url,
+                        json=body,
+                        timeout=self._timeout,
+                        headers={"Connection": "close"},
+                    ) as resp:
+                        resp.raise_for_status()
+                        data = await resp.json(content_type=None)
+                    break
+                except (aiohttp.ServerDisconnectedError, aiohttp.ClientOSError) as err:
+                    if attempt == 0:
+                        _LOGGER.debug("%s to %s: %s, retrying", method, self.host, err)
+                        await asyncio.sleep(0.25)
+                        continue
+                    raise FalconConnectionError(
+                        f"{method} request to {self.host} failed: {err}"
+                    ) from err
+                except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
+                    raise FalconConnectionError(
+                        f"{method} request to {self.host} failed: {err}"
+                    ) from err
         if not isinstance(data, dict):
             raise FalconError(f"Unexpected {method} response from {self.host}")
         code = data.get("R", 200)

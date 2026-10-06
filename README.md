@@ -55,6 +55,15 @@ The polling interval (default 15 seconds) can be changed from the integration's 
 
 ## Dashboard
 
+The dashboard is built by a small script that the integration installs as a **dashboard resource** automatically, and keeps up to date when you update. Nothing to do in the usual setup.
+
+> **Dashboards in YAML mode** (`lovelace: mode: yaml`) can't be changed by integrations. Add the resource yourself under `lovelace: resources:`:
+>
+> ```yaml
+> - url: /falcon_controller_static/falcon-controller-strategy.js
+>   type: module
+> ```
+
 ### As a view in an existing dashboard
 
 Add a new view, open it with **Edit in YAML**, and replace its contents with:
@@ -99,6 +108,14 @@ That creates one view per controller.
 The page includes controller status, a warning card when a fuse blows, the global fuse buttons (each with a confirmation), a section of port tiles for the onboard ports and for each receiver, health sensors, and a current history graph. **Tap** a port to see details; **press and hold** to toggle its fuse (with a confirmation).
 
 The page is generated when the dashboard loads, so new receivers show up after a refresh. To customize it, open the view's ⋮ menu → **Take control** to turn it into a normal editable view.
+
+## Troubleshooting
+
+**"Timeout waiting for strategy element ll-strategy-view-falcon-controller to be registered"**, or a blank Falcon page (the error only shows in edit mode): the device hasn't loaded the dashboard script. Usually it's a phone or the companion app holding an old cached copy of Home Assistant.
+
+1. Check **Settings → Dashboards → ⋮ → Resources** for an entry starting with `/falcon_controller_static/falcon-controller-strategy.js`. If it's missing (for example, dashboards in YAML mode), add it as a **JavaScript module**.
+2. Restart Home Assistant after installing or updating the integration.
+3. On the phone, fully close and reopen the app. If it's still blank, use **Settings → Companion app → Troubleshooting → Reset frontend cache**.
 
 ## Things to know
 

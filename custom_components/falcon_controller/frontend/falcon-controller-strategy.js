@@ -16,7 +16,7 @@
  */
 
 const DOMAIN = "falcon_controller";
-const VERSION = "0.1.4";
+const VERSION = "0.1.6";
 console.info("Falcon Controller dashboard strategy " + VERSION + " loaded");
 const natural = (a, b) => String(a).localeCompare(String(b), undefined, { numeric: true });
 
