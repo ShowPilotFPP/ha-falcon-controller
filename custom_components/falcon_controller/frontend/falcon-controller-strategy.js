@@ -5,6 +5,7 @@
  *   strategy:
  *     type: custom:falcon-controller
  *     device_id: <optional, limit to one controller>
+ *     max_columns: 5           <optional, most columns on wide screens (default 3)>
  *     subview: true            <optional, hide from tabs; open via a navigate action>
  *     back_path: /lovelace/0   <optional, where the back arrow goes>
  *
@@ -16,7 +17,7 @@
  */
 
 const DOMAIN = "falcon_controller";
-const VERSION = "0.1.6";
+const VERSION = "0.1.7";
 console.info("Falcon Controller dashboard strategy " + VERSION + " loaded");
 const natural = (a, b) => String(a).localeCompare(String(b), undefined, { numeric: true });
 
@@ -98,9 +99,9 @@ function byPort(a, b) {
     (a.attrs.receiver ?? 0) - (b.attrs.receiver ?? 0);
 }
 
-function portSection(title, deviceItems) {
+function portCards(title, deviceItems) {
   const fuses = deviceItems.filter((i) => i.role === "port_fuse").sort(byPort);
-  if (!fuses.length) return null;
+  if (!fuses.length) return [];
   const switches = deviceItems.filter((i) => i.role === "port");
   const cards = [{ type: "heading", heading: title }];
   for (const fuse of fuses) {
@@ -110,8 +111,21 @@ function portSection(title, deviceItems) {
       : switches.find((s) => s.attrs.port_label === fuse.attrs.port_label);
     cards.push(portTile(fuse, sw));
   }
-  return { type: "grid", cards };
+  return cards;
 }
+
+function portSection(title, deviceItems) {
+  const cards = portCards(title, deviceItems);
+  return cards.length ? { type: "grid", cards } : null;
+}
+
+const HEALTH_NAMES = {
+  temperature_1: "Temp 1",
+  temperature_2: "Temp 2",
+  processor_temperature: "CPU temp",
+  voltage_1: "Voltage 1",
+  voltage_2: "Voltage 2",
+};
 
 function controllerSections(hass, ctrl, items, devices) {
   const name = deviceName(ctrl);
@@ -179,6 +193,14 @@ function controllerSections(hass, ctrl, items, devices) {
       },
     });
   }
+  // Health goes under the status cards rather than in its own short column.
+  const health = own.filter((i) => i.role in HEALTH_NAMES);
+  if (health.length) {
+    status.push({ type: "heading", heading: "Health", heading_style: "subtitle" });
+    health.forEach((h) =>
+      status.push({ type: "tile", entity: h.entity_id, name: HEALTH_NAMES[h.role], grid_options: half })
+    );
+  }
   sections.push({ type: "grid", cards: status });
 
   // --- Ports: onboard, then one section per receiver ---
@@ -188,29 +210,16 @@ function controllerSections(hass, ctrl, items, devices) {
     (ctrl.model || "").startsWith("F16");
   const onboard = portSection(hasOnboard ? "Onboard ports" : "Ports", own);
   if (onboard) sections.push(onboard);
+  const rxCards = [];
   for (const rx of receiverDevices) {
     const rxItems = mine.filter((i) => i.device_id === rx.id);
     const rxSensor = rxItems.find((i) => i.role === "receiver");
     const title = rxSensor && rxSensor.attrs.receiver_label
       ? `Receiver ${rxSensor.attrs.receiver_label}`
       : deviceName(rx);
-    const section = portSection(title, rxItems);
-    if (section) sections.push(section);
+    rxCards.push(...portCards(title, rxItems));
   }
-
-  // --- Health (temperatures / voltages) ---
-  const health = own.filter((i) =>
-    ["temperature_1", "temperature_2", "processor_temperature", "voltage_1", "voltage_2"].includes(i.role)
-  );
-  if (health.length) {
-    sections.push({
-      type: "grid",
-      cards: [
-        { type: "heading", heading: "Health" },
-        ...health.map((h) => ({ type: "tile", entity: h.entity_id, grid_options: half })),
-      ],
-    });
-  }
+  if (rxCards.length) sections.push({ type: "grid", cards: rxCards });
 
   // --- Current history for ports that are in use ---
   const currents = mine
@@ -229,6 +238,7 @@ function controllerSections(hass, ctrl, items, devices) {
   if (currents.length) {
     sections.push({
       type: "grid",
+      column_span: 2,
       cards: [
         { type: "heading", heading: "Port current" },
         { type: "history-graph", hours_to_show: 6, entities: currents },

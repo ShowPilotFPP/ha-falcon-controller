@@ -144,7 +144,7 @@ actions:
 ## Development
 
 ```bash
-pip install pytest-homeassistant-custom-component==0.13.205 "pycares<4.9"
+pip install -r requirements_test.txt
 python -m pytest
 ```
 
