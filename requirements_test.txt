@@ -1,0 +1,6 @@
+# Test dependencies. Pinned so pip doesn't spend minutes searching for
+# compatible Bluetooth library versions for the test harness's Home Assistant.
+pytest-homeassistant-custom-component==0.13.205
+pycares<4.9
+habluetooth==6.1.0
+bluetooth-data-tools==1.28.4
