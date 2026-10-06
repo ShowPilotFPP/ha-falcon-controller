@@ -16,6 +16,8 @@
  */
 
 const DOMAIN = "falcon_controller";
+const VERSION = "0.1.4";
+console.info("Falcon Controller dashboard strategy " + VERSION + " loaded");
 const natural = (a, b) => String(a).localeCompare(String(b), undefined, { numeric: true });
 
 function deviceName(device) {
@@ -132,7 +134,7 @@ function controllerSections(hass, ctrl, items, devices) {
       conditions: [{ condition: "state", entity: blown.entity_id, state: "on" }],
       card: {
         type: "markdown",
-        content: `## ⚠️ Fuse blown\nPort(s): **{{ state_attr('${blown.entity_id}', 'blown_ports') }}**`,
+        content: `## \u26A0\uFE0F Fuse blown\nPort(s): **{{ state_attr('${blown.entity_id}', 'blown_ports') }}**`,
       },
     });
   }
@@ -246,7 +248,29 @@ function emptyView() {
           {
             type: "markdown",
             content:
-              "No Falcon controllers found. Add one under **Settings → Devices & services → Add integration → Falcon Controller**.",
+              "No Falcon controllers found. Add one under **Settings \u2192 Devices & services \u2192 Add integration \u2192 Falcon Controller**.",
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function errorView(err) {
+  console.error("Falcon Controller strategy failed", err);
+  const detail = String((err && (err.stack || err.message)) || err).slice(0, 1500);
+  return {
+    type: "sections",
+    sections: [
+      {
+        type: "grid",
+        cards: [
+          {
+            type: "markdown",
+            content:
+              "**Falcon Controller dashboard error** (v" + VERSION + ")\n\n" +
+              "Please report this at github.com/ShowPilotFPP/ha-falcon-controller/issues\n\n" +
+              "```\n" + detail + "\n```",
           },
         ],
       },
@@ -256,6 +280,14 @@ function emptyView() {
 
 class FalconControllerViewStrategy extends HTMLElement {
   static async generate(config, hass) {
+    try {
+      return FalconControllerViewStrategy._generate(config || {}, hass);
+    } catch (err) {
+      return errorView(err);
+    }
+  }
+
+  static _generate(config, hass) {
     const { items, devices, controllers } = collect(hass);
     const chosen = config.device_id
       ? controllers.filter((c) => c.id === config.device_id)
@@ -275,6 +307,14 @@ class FalconControllerViewStrategy extends HTMLElement {
 
 class FalconControllerDashboardStrategy extends HTMLElement {
   static async generate(config, hass) {
+    try {
+      return FalconControllerDashboardStrategy._generate(config || {}, hass);
+    } catch (err) {
+      return { views: [{ title: "Falcon", ...errorView(err) }] };
+    }
+  }
+
+  static _generate(config, hass) {
     const { controllers } = collect(hass);
     if (!controllers.length) return { views: [{ title: "Falcon", ...emptyView() }] };
     return {
