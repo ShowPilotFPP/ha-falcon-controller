@@ -6,7 +6,6 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant
 
@@ -23,10 +22,9 @@ async def async_register_frontend(hass: HomeAssistant) -> None:
     await hass.http.async_register_static_paths(
         [StaticPathConfig(FRONTEND_URL_BASE, str(Path(__file__).parent / "frontend"), True)]
     )
-    # Loads the script on fresh page loads. Phones and the companion app can
-    # keep an old cached copy of the main page, so also add a dashboard
-    # resource below, which dashboards fetch every time they load.
-    add_extra_js_url(hass, SCRIPT_URL)
+    # Loaded only as a dashboard resource. Loading it as an early "extra"
+    # script too made it register before the companion app's custom-element
+    # compatibility layer was installed, so Home Assistant never saw it.
     await async_ensure_resource(hass)
 
 

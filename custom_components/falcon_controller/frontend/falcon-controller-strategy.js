@@ -17,7 +17,7 @@
  */
 
 const DOMAIN = "falcon_controller";
-const VERSION = "0.1.7";
+const VERSION = "0.1.8";
 console.info("Falcon Controller dashboard strategy " + VERSION + " loaded");
 const natural = (a, b) => String(a).localeCompare(String(b), undefined, { numeric: true });
 
@@ -339,12 +339,37 @@ class FalconControllerDashboardStrategy extends HTMLElement {
   }
 }
 
-if (!customElements.get("ll-strategy-view-falcon-controller")) {
-  customElements.define("ll-strategy-view-falcon-controller", FalconControllerViewStrategy);
+const DEFINITIONS = [
+  ["ll-strategy-view-falcon-controller", FalconControllerViewStrategy],
+  ["ll-strategy-dashboard-falcon-controller", FalconControllerDashboardStrategy],
+];
+
+function register() {
+  const registry = globalThis.customElements;
+  if (!registry) return;
+  for (const [tag, Base] of DEFINITIONS) {
+    try {
+      if (!registry.get(tag)) {
+        // A fresh subclass each time: a class can only be defined once per
+        // registry, and a replacement registry needs its own definition.
+        registry.define(tag, class extends Base {});
+      }
+    } catch (err) {
+      console.warn("Falcon Controller: could not register " + tag, err);
+    }
+  }
 }
-if (!customElements.get("ll-strategy-dashboard-falcon-controller")) {
-  customElements.define("ll-strategy-dashboard-falcon-controller", FalconControllerDashboardStrategy);
-}
+
+register();
+
+// Some Home Assistant setups (e.g. the companion app's WebView) replace the
+// custom element registry with a compatibility layer during startup. If this
+// script ran before that, re-register on the new registry.
+let falconRegisterChecks = 0;
+const falconRegisterTimer = setInterval(() => {
+  register();
+  if (++falconRegisterChecks >= 40) clearInterval(falconRegisterTimer);
+}, 250);
 
 // Exposed for testing outside the browser.
 if (typeof module !== "undefined") {

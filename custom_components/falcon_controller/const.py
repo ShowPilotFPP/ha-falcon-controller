@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "falcon_controller"
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 
 CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_SCAN_INTERVAL = 15
